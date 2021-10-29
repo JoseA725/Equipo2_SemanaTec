@@ -5,22 +5,11 @@
 import time
 import json
 import paho.mqtt.client as mqtt
-#import mysql.connector as mysql
-
-#db = mysql.connect(
-#    host='localhost',
-#    user='arduino',
-#    passwd='arduino',
-#    database = 'tc1004b'
-#    )
-#mycursor = db.cursor()
-#mycursor.execute('USE tc1004b')
 
 # Callback Function on Connection with MQTT Server
 # Función Callback que se ejecuta cuando se conectó con el servidor MQTT
 def on_connect( client, userdata, flags, rc):
     print ("Connected with Code :" +str(rc))
-    # Subscribe Topic from here
     # Aprovechando que se conectó, hacemos un subscribe a los tópicos
     #client.subscribe("fjhp6619mxIn")
     client.subscribe("equipo2SemanaTecIn")
@@ -36,27 +25,23 @@ def on_message( client, userdata, msg):
     # print the message received from the subscribed topic
     topic = msg.topic
     m_decode = str(msg.payload.decode("utf-8","ignore"))
-    m_in = json.loads(m_decode)
+    try:
+        m_in = json.loads(m_decode)
 # Checar si el tópico es el que deseamos
 # Para Debug: iprimimos lo que generamos
 # Aquí es donde podemos almacenar en la BD la información
 # que envía el dispositivo
-    print()
-    print('------------Llegada de mensaje-----------')
-    print('Tópico: ', topic)
-    print(type(m_decode),' ' , m_decode)
-    print(type(m_in), ' ' , m_in)
-    print('Dispositivo: ', type(m_in['dispositivo']) ,' ',m_in['dispositivo'])
-    print('       Tipo: ', type(m_in['tipo'])        ,' ',m_in['tipo'])
-    print('       Dato: ', type(m_in['dato'])        ,' ',m_in['dato'])
-    #print ("Recibido--->", str(msg.payload) )
-    dispositivo = m_in['dispositivo']
-    tipo = m_in['tipo']
-    dato = m_in['dato']
- #   sqls = f'''INSERT INTO PyLog2 (dispositivo, tipo, dato) VALUES ("{dispositivo}","{tipo}",{dato})'''
- #   print(sqls)
- #   mycursor.execute(sqls)
- #   db.commit()
+        print()
+        print('------------Llegada de mensaje-----------')
+        print('Tópico: ', topic)
+        print(type(m_decode),' ' , m_decode)
+        print(type(m_in), ' ' , m_in)
+        print('Dispositivo: ', type(m_in['dispositivo']) ,' ',m_in['dispositivo'])
+        print('       Tipo: ', type(m_in['tipo'])        ,' ',m_in['tipo'])
+        print('       Dato: ', type(m_in['dato'])        ,' ',m_in['dato'])
+        print ("Recibido--->", str(msg.payload) )
+    except:
+        print ("Detectamos que el dato era de tipo NAN, no podemos imprimir el resultado")
     
 # En esta función pedimos datos al usuario para saber a qué
 # dispositivo vamos a enviar el mensaje y lo formatemos a json
@@ -67,8 +52,6 @@ def envia_dispositivo():
     dicSalida = {'dispositivo':dispositivo,'tipo':sensor_actuador,'dato':accion} #cambie el nombre de los dirccionarios para empatar
     salidaJson = json.dumps(dicSalida)
     print('Salida Json:', salidaJson)
-    #client.publish("tc1004b/profe/dispositivos",salidaJson)
-    #time.sleep(4)
     client.publish("equipo2SemanaTecIn",salidaJson)
 
 # Envía un mensaje de prueba para que se procese en la llegada de mensajes
@@ -78,17 +61,6 @@ def mensaje_debug():
     #client.publish("tc1004b/profe/dispositivos",salida)
     client.publish("equipo2SemanaTecIn",salida)
 
-#def consulta():
-#    mycursor.execute('DESCRIBE PyLog2')
-#    print('DESCRIBE NodeRedLog -------------------------------')
-#    for descripcion in mycursor:
-#        print(descripcion)
-#    mycursor.execute('''SELECT  * FROM PyLog2 ORDER BY fechahora DESC limit 10''')
-#    print('SELECT * FROM Person --------------------------')
-#    for datos in mycursor:
-#        print(datos)
-#    print('-----------------------------------------------')
-
 # Generamos el cliente y las funciones para recibir mensajes y
 # cuando se genera la conexión.
 client = mqtt.Client()
@@ -96,11 +68,6 @@ client.on_connect = on_connect
 client.on_message = on_message
 # Hacemos la conexión al Broker
 client.connect("broker.mqtt-dashboard.com", port=1883)
-# Las siguientes instrucciones son para el caso que requiera password
-# client.username_pw_set("setsmjwc", "apDnKqHRgAjA")
-# y para ejecutar un loop forever, nosotros haremos un loop_start()
-# solamente
-# client.loop_forever()
 # Iniciamos el ciclo del cliente MQTT
 # Por lo que se va a conectar y le damos tres segundos
 client.loop_start()
@@ -109,14 +76,11 @@ time.sleep(3)
 #Programa principal
 opc = 'x'
 while opc != 's':
-    opc = input('e)nvía p)rocesa c)onsulta s)alir d)ebug ')
+    opc = input('e)nvía p)rocesa s)alir d)ebug ')
     if opc == 'e':
         envia_dispositivo()
     elif opc == 'p':
         procesa()
-    elif opc == 'c':
-        pass
-        #consulta()
     elif opc == 'd':
         mensaje_debug()
   
