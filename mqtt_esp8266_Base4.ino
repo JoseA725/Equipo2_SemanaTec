@@ -23,8 +23,8 @@ NTPClient timeClient(ntpUDP, NTP_ADDRESS, NTP_OFFSET, NTP_INTERVAL);
 const char* ssid = "Galaxy Note20cf62";
 const char* password = "muyg5147";
 const char* mqtt_server = "broker.mqtt-dashboard.com";
-const char* topico_salida = "fjhp6619mxOut";
-const char* topico_entrada = "fjhp6619mxIn";
+const char* topico_salida = "equipo2SemanaTecOut";
+const char* topico_entrada = "equipo2SemanaTecIn";
 
 
 WiFiClient espClient;
